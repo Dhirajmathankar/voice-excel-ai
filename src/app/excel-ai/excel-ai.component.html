@@ -1,0 +1,15 @@
+<div class="excel-ai-voice">
+  <div class="controls">
+    <input type="file" (change)="onUploadFile($event)" accept=".xlsx,.xls" />
+    <button (click)="startListening()" [disabled]="listening">Start Voice</button>
+    <button (click)="stopListening()" [disabled]="!listening">Stop</button>
+    <button (click)="saveToXlsxAndDownload()">Save / Download</button>
+    <div class="transcript">
+      <strong>Transcript:</strong> {{ transcript }}
+    </div>
+    <div *ngIf="lastParsedAction"><strong>Last action:</strong> {{ lastParsedAction | json }}</div>
+  </div>
+
+  <div id="luckysheet" style="margin-top:10px; width:100%; height:600px;"></div>
+  
+</div>

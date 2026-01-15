@@ -1,12 +1,17 @@
 {
-  "name": "desktop-application",
-  "version": "0.0.0",
+  "name": "DesktopApplication",
+  "version": "1.0.0",
+  "main": "main.js",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
+    "build:angular": "ng build --base-href ./",
+    "start:electron": "electron .",
+    "build:electron": "electron-builder",
+    "build": "npm run build:angular && npm run build:electron",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "dist": "electron-builder"
   },
   "private": true,
   "dependencies": {
@@ -18,8 +23,15 @@
     "@angular/platform-browser": "^15.2.0",
     "@angular/platform-browser-dynamic": "^15.2.0",
     "@angular/router": "^15.2.0",
+    "@google/generative-ai": "^0.24.1",
+    "auto-launch": "^5.0.6",
+    "jquery": "npm:jQuery@^1.7.4",
+    "jQuery": "^1.7.4",
+    "jszip": "^3.10.1",
+    "luckysheet": "^2.1.13",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
+    "xlsx": "^0.18.5",
     "zone.js": "~0.12.0"
   },
   "devDependencies": {
@@ -27,6 +39,9 @@
     "@angular/cli": "~15.2.11",
     "@angular/compiler-cli": "^15.2.0",
     "@types/jasmine": "~4.3.0",
+    "@types/jquery": "^3.5.33",
+    "electron": "^38.2.2",
+    "electron-builder": "^26.0.12",
     "jasmine-core": "~4.5.0",
     "karma": "~6.4.0",
     "karma-chrome-launcher": "~3.1.0",
@@ -34,5 +49,31 @@
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.0.0",
     "typescript": "~4.9.4"
+  },
+  "build": {
+    "appId": "com.example.desktopapp",
+    "productName": "Excel Mitra",
+    "icon": "electron-assets/my_app_logo.ico",
+    "directories": {
+      "output": "dist_electron"
+    },
+    "files": [
+      "dist/**/*",
+      "main.js",
+      "package.json"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "electron-assets/my_app_logo.ico",
+      "requestedExecutionLevel": "asInvoker"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Excel Mitra"
+    }
   }
 }
