@@ -1,17 +1,102 @@
-/* .excel-ai-voice {
-  .controls {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    margin-bottom: 8px;
-    flex-wrap: wrap;
-  }
-  #luckysheet {
-    box-shadow: 0 4px 12px rgba(0,0,0,.08);
-    border-radius: 6px;
-    overflow: hidden;
-  }
-} */
+
+:host {
+  --primary: #217346; /* Excel Green */
+  --bg-light: #f3f2f1;
+  --text-main: #323130;
+  --border: #edebe9;
+  --danger: #d13438;
+}
+
+.header-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+.controls-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.control-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.divider {
+  width: 1px;
+  height: 24px;
+  background: var(--border);
+}
+
+/* Button Styling */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid transparent;
+}
+
+.btn-outline {
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-main);
+}
+
+.btn-outline:hover { background: var(--bg-light); }
+
+.btn-voice {
+  background: var(--primary);
+  color: white;
+}
+
+.btn-voice.recording {
+  background: var(--danger);
+  animation: pulse 1.5s infinite;
+}
+
+.btn-google {
+  background: white;
+  border: 1px solid #dadce0;
+  color: #3c4043;
+}
+
+/* Hide original file input */
+.file-input-label input { display: none; }
+
+/* Status Bar Below */
+.status-bar {
+  display: flex;
+  gap: 20px;
+  padding: 6px 1.5rem;
+  background: #faf9f8;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+}
+
+.transcript-chip {
+  color: #605e5c;
+  font-style: italic;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.7; }
+  100% { opacity: 1; }
+}
+
 .excel-ai-voice .controls {
   display: flex;
   gap: 10px;
@@ -24,4 +109,18 @@
   box-shadow: 0 4px 12px rgba(0,0,0,.08);
   border-radius: 6px;
   overflow: hidden;
+}
+.sheet-modal {
+  background: #fff;
+  padding: 16px;
+  border-radius: 8px;
+}
+
+li {
+  cursor: pointer;
+  padding: 8px;
+}
+
+.active {
+  background: #e0f2ff;
 }

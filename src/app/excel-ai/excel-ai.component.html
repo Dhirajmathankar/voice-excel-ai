@@ -1,5 +1,54 @@
+<header class="header-container" style="flex-wrap: wrap;">
+  <div class="logo-section">
+    <img src="assets/img/mittra.png" style="height: 35px;" alt="Logo" class="logo">
+    <!-- <span class="app-name">Excel AI</span> -->
+  </div>
+
+  <div class="controls-wrapper" style="flex-wrap: wrap;">
+    <div class="control-group">
+      <label class="btn btn-outline file-input-label">
+        <i class="fas fa-upload"></i> Choose File
+        <input type="file" (change)="onUploadFile($event)" accept=".xlsx,.xls" />
+      </label>
+      <button class="btn btn-secondary" (click)="saveToXlsxAndDownload()">
+        <i class="fas fa-download"></i> Save
+      </button>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="control-group">
+      <button class="btn btn-voice" [class.recording]="listening" (click)="startListening()" [disabled]="listening">
+        <span class="dot"></span> Start Voice
+      </button>
+      <button class="btn btn-stop" (click)="stopListening()" [disabled]="!listening">
+        <i class="fas fa-stop"></i>
+      </button>
+    </div>
+
+    <div class="divider"></div>
+
+    <button class="btn btn-google" (click)="loginWithGoogle()">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="G">
+      Open Sheet
+    </button>
+  </div>
+</header>
+
+<div class="status-bar">
+  <div class="transcript-chip">
+    <span class="label">Transcript:</span>
+    <span class="value">{{ transcript || 'Waiting for voice input...' }}</span>
+  </div>
+  <div class="action-chip" *ngIf="lastParsedAction">
+    <span class="label">Last action:</span>
+    <span class="value">{{ lastParsedAction | json }}</span>
+  </div>
+</div>
+
+
 <div class="excel-ai-voice">
-  <div class="controls">
+  <!-- <div class="controls">
     <input type="file" (change)="onUploadFile($event)" accept=".xlsx,.xls" />
     <button (click)="startListening()" [disabled]="listening">Start Voice</button>
     <button (click)="stopListening()" [disabled]="!listening">Stop</button>
@@ -8,7 +57,16 @@
       <strong>Transcript:</strong> {{ transcript }}
     </div>
     <div *ngIf="lastParsedAction"><strong>Last action:</strong> {{ lastParsedAction | json }}</div>
-  </div>
+
+    <button (click)="loginWithGoogle()">
+  Login with Google & Open Sheet
+</button>
+
+
+
+
+
+  </div> -->
 
   <div id="luckysheet" style="margin-top:10px; width:100%; height:600px;"></div>
   

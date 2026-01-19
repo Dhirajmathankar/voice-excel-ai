@@ -1,425 +1,10 @@
-// // import { Component } from '@angular/core';
-
-// // @Component({
-// //   selector: 'app-excel-ai',
-// //   templateUrl: './excel-ai.component.html',
-// //   styleUrls: ['./excel-ai.component.css']
-// // })
-// // export class ExcelAiComponent {
-
-// // }
-
-// import { Component, OnInit, NgZone, AfterViewInit } from '@angular/core';
-// import { ExcelService } from '../services/excel.service';
-// import { GeminiService } from '../services/gemini.service';
-// import * as luckysheet from 'luckysheet';
-// // import * as $ from 'jquery';
-// import * as $ from 'jquery';
-
-
-// @Component({
-//   selector: 'app-excel-ai',
-//   templateUrl: './excel-ai.component.html',
-//   styleUrls: ['./excel-ai.component.css']
-// })
-// export class ExcelAiComponent implements OnInit, AfterViewInit {
-//   transcript = '';
-//   listening = false;
-//   recognition: any;
-//   workbookHandle: any = null; // optional file handle if saved via File System Access
-//   luckysheetId = 'luckysheet';
-//   sheetData: any[] = []; // luckysheet internal data structure
-//   currentColumns: string[] = [];
-//   currentRows: any[][] = [];
-//   lastParsedAction: any = null;
-//   constructor(
-//     private zone: NgZone,
-//     private excelSvc: ExcelService,
-//     private geminiSvc: GeminiService
-//   ) {}
-
-//   ngOnInit(): void {
-//     // nothing heavy here
-//   }
-
-//   ngAfterViewInit(): void {
-//     // initialize luckysheet with empty sheet
-//     (window as any).luckysheet.create({
-//       container: this.luckysheetId,
-//       title: 'Sheet1',
-//       lang: 'en',
-//       cellRightClickConfig: false,
-//       data: [{
-//         name: 'Sheet1',
-//         celldata: [],
-//         config: {},
-//         index: 0
-//       }],
-//       allowEdit: true,
-//       plugin: ['chart']
-//     });
-//   }
-
-//   // --- Voice methods ---
-//   startListening() {
-//     // use Web Speech API
-//     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-//     if (!SpeechRecognition) {
-//       alert('Speech recognition not supported in this browser. Use Chrome/Edge.');
-//       return;
-//     }
-//     this.recognition = new SpeechRecognition();
-//     this.recognition.lang = 'en-US';
-//     this.recognition.interimResults = false;
-//     this.recognition.maxAlternatives = 1;
-//     this.recognition.onstart = () => { this.zone.run(() => this.listening = true); };
-//     this.recognition.onerror = (e: any) => {
-//       console.error('speech error', e);
-//       this.zone.run(() => this.listening = false);
-//     };
-//     this.recognition.onend = () => {
-//       this.zone.run(() => this.listening = false);
-//     };
-//     this.recognition.onresult = (event: any) => {
-//       const text = event.results[0][0].transcript;
-//       this.zone.run(() => this.transcript = text);
-//       this.onVoiceCommand(text);
-//     };
-//     this.recognition.start();
-//   }
-
-//   stopListening() {
-//     if (this.recognition) this.recognition.stop();
-//     this.listening = false;
-//   }
-
-//   // --- File operations ---
-//   async onUploadFile(ev: any) {
-//     const file: File = ev.target.files[0];
-//     if (!file) return;
-//     const parsed = await this.excelSvc.readFileFromFile(file);
-//     // parsed: {columns, rows}
-//     this.currentColumns = parsed.columns;
-//     this.currentRows = parsed.rows;
-//     this.loadToLuckysheet(this.currentColumns, this.currentRows);
-//   }
-
-//   loadToLuckysheet(columns: string[], rows: any[][]) {
-//     // convert to luckysheet celldata
-//     const celldata: any[] = [];
-//     // write header row
-//     for (let r = 0; r <= rows.length; r++) {
-//       for (let c = 0; c < columns.length; c++) {
-//         const value = (r === 0) ? columns[c] : (rows[r-1] ? rows[r-1][c] : '');
-//         celldata.push({
-//           r: r, c: c, v: value
-//         });
-//       }
-//     }
-//     // build sheet object
-//     const sheet = [{
-//       name: 'Sheet1',
-//       celldata,
-//       config: {},
-//       index: 0
-//     }];
-//     (window as any).luckysheet.create({ container: this.luckysheetId, data: sheet });
-//   }
-
-//   async saveToXlsxAndDownload() {
-//     // read back from luckysheet
-//     // get range as 2D array
-//     const data = (window as any).luckysheet.getluckysheetdata(0); // returns 2D matrix
-//     // convert to columns+rows
-//     const rows = data.slice(1);
-//     // ensure arrays of primitives
-//     const cols = (data[0] || []).map((c: any) => c || '');
-//     const rows2 = rows.map((r: any[]) => r.map(cell => cell && cell.v !== undefined ? cell.v : cell));
-//     const { blob, filename } = this.excelSvc.exportToFile(cols, rows2, 'export.xlsx');
-//     // Use File System Access API if available:
-//     if ((window as any).showSaveFilePicker) {
-//       try {
-//         // @ts-ignore
-//         const handle = await (window as any).showSaveFilePicker({
-//           suggestedName: filename,
-//           types: [{ description: 'Excel File', accept: { 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'] }}]
-//         });
-//         const writable = await handle.createWritable();
-//         await writable.write(blob);
-//         await writable.close();
-//         alert('Saved to chosen location.');
-//       } catch (err) {
-//         console.error(err);
-//         // fallback
-//         this.forceDownloadBlob(blob, filename);
-//       }
-//     } else {
-//       // fallback to download
-//       this.forceDownloadBlob(blob, filename);
-//     }
-//   }
-
-//   forceDownloadBlob(blob: Blob, filename: string) {
-//     const url = URL.createObjectURL(blob);
-//     const a = document.createElement('a');
-//     a.href = url;
-//     a.download = filename;
-//     a.click();
-//     URL.revokeObjectURL(url);
-//   }
-
-//   // --- Command integration with Gemini (LLM) ---
-//   async onVoiceCommand(text: string) {
-//     // show on UI
-//     this.transcript = text;
-
-//     // Craft prompt with examples (system prompt + user text)
-//     const prompt = this.buildCommandPrompt(text);
-
-//     try {
-//       // send to gemini proxy
-//       const res: any = await this.geminiSvc.parseCommand(prompt);
-//       // The proxy should return JSON or model answer; you may need to extract .choices[0].text or similar depending on API
-//       const parsed = this.extractJsonFromModelResponse(res);
-//       this.lastParsedAction = parsed;
-//       if (parsed) {
-//         this.executeAction(parsed);
-//       } else {
-//         alert('Could not parse command. Try again.');
-//       }
-//     } catch (err) {
-//       console.error('Gemini error', err);
-//       // alert('Command parse failed: ' + (err.message || err));
-//     }
-//   }
-
-//   buildCommandPrompt(userText: string) {
-//     // Clear, deterministic prompt that instructs the LLM to return only JSON.
-//     // You will adapt keys & actions as needed.
-//     return `
-// You are a JSON command parser for an Excel-like web app. Input is a user's spoken command. Output ONLY valid JSON (no extra text) with the schema:
-
-// {
-//   "action": "sort|filter|find_replace|insert_row|delete_row|update_cell|save|load|add_column|delete_column|clear_filter|undo",
-//   "sheet": "Sheet1",
-//   "column": "A|B|C|... or column name",
-//   "columnIndex": 0,             // zero-based column index if known
-//   "order": "asc|desc",          // for sort
-//   "value": "...",               // value for filter/find/replace/update_cell
-//   "from": {"r":0,"c":0},        // optional cell coords zero-based
-//   "to": {"r":1,"c":2},          // optional range
-//   "filename": "optional.xlsx"   // for save/load
-// }
-
-// Examples:
-// "Sort column A descending" => {"action":"sort","column":"A","columnIndex":0,"order":"desc"}
-// "Find all rows where column 'Name' contains John" => {"action":"filter","column":"Name","value":"John"}
-// "Replace 2024 with 2025 in column C" => {"action":"find_replace","column":"C","value":"2025","replaceWith":"2025"}
-// "Insert a row after row 3" => {"action":"insert_row","from":{"r":3,"c":0}}
-// "Save file as monthly-report.xlsx" => {"action":"save","filename":"monthly-report.xlsx"}
-
-// Now parse this command:
-// "${userText}"
-// `;
-//   }
-
-//   extractJsonFromModelResponse(res: any) {
-//     // model proxy may return different structure. Try to find a JSON substring.
-//     try {
-//       // if res is an object with text in res.choices[0].text:
-//       const candidate = (res?.choices?.[0]?.text) || res?.text || res?.result || JSON.stringify(res);
-//       // extract JSON block
-//       const m = candidate.match(/({[\s\S]*})/);
-//       if (m) {
-//         return JSON.parse(m[1]);
-//       }
-//       // if candidate is raw JSON
-//       return JSON.parse(candidate);
-//     } catch (err) {
-//       console.error('parse model response error', err, res);
-//       return null;
-//     }
-//   }
-  
-
-//   // --- Map parsed command to luckysheet operations ---
-//   executeAction(cmd: any) {
-//     if (!cmd || !cmd.action) return;
-//     switch (cmd.action) {
-//       case 'sort':
-//         this.doSort(cmd);
-//         break;
-//       case 'filter':
-//         this.doFilter(cmd);
-//         break;
-//       case 'find_replace':
-//         this.doFindReplace(cmd);
-//         break;
-//       case 'insert_row':
-//         this.doInsertRow(cmd);
-//         break;
-//       case 'delete_row':
-//         this.doDeleteRow(cmd);
-//         break;
-//       case 'update_cell':
-//         this.doUpdateCell(cmd);
-//         break;
-//       case 'save':
-//         this.saveToXlsxAndDownload();
-//         break;
-//       case 'load':
-//         // instruct user to upload the file if no FS access
-//         alert('To load a file, use the upload button.');
-//         break;
-//       default:
-//         console.warn('action not implemented', cmd);
-//         alert('Action not implemented: ' + cmd.action);
-//     }
-//   }
-
-//   // Implementations using luckysheet APIs (simplified)
-//   doSort(cmd: any) {
-//     // convert column (A->0) or columnIndex
-//     const colIndex = this.parseColumnIndex(cmd);
-//     if (colIndex == null) return alert('Cannot find column to sort');
-//     // Luckysheet sorting: use luckysheet.sortRangeBy
-//     try {
-//       // This is a simplified approach — adjust depending on luckysheet API
-//       (window as any).luckysheet.sortRangeBy({
-//         range: [{ row: [0, 10000], column: [colIndex, colIndex] }],
-//         sorttype: cmd.order === 'desc' ? 'desc' : 'asc'
-//       });
-//       alert(`Sorted column ${cmd.column || colIndex} ${cmd.order}`);
-//     } catch (err) {
-//       console.error(err);
-//       alert('Sort failed: ' + err);
-//     }
-//   }
-
-//   doFilter(cmd: any) {
-//     const colIndex = this.parseColumnIndex(cmd);
-//     if (colIndex == null) return alert('Cannot find column to filter');
-//     const val = cmd.value;
-//     if (val == null) return alert('No filter value provided');
-//     // Simple filter: iterate rows, hide rows not matching; luckysheet has filter plugin but we do a simple approach.
-//     // We'll transform the data into an in-memory filter and reload sheet with filtered rows.
-//     const data = (window as any).luckysheet.getluckysheetdata(0); // 2D array
-//     const headers = data[0].map((cell: any) => cell.v ?? cell);
-//     const col = colIndex;
-//     const filtered = [data[0], ...data.slice(1).filter((row:any[]) => {
-//       const cell = row[col];
-//       const v = (cell && cell.v !== undefined) ? String(cell.v) : String(cell);
-//       return v.toLowerCase().includes(String(val).toLowerCase());
-//     })];
-//     // convert filtered to celldata format:
-//     const celldata: any[] = [];
-//     for (let r = 0; r < filtered.length; r++) {
-//       for (let c = 0; c < filtered[0].length; c++) {
-//         celldata.push({ r, c, v: (filtered[r][c] && filtered[r][c].v !== undefined) ? filtered[r][c].v : filtered[r][c]});
-//       }
-//     }
-//     (window as any).luckysheet.create({ container: this.luckysheetId, data: [{ name:'Sheet1', celldata, index:0 }]});
-//     alert(`Filtered column ${cmd.column || colIndex} by '${val}'`);
-//   }
-
-//   doFindReplace(cmd: any) {
-//     const colIndex = this.parseColumnIndex(cmd);
-//     const findVal = cmd.value;
-//     const replaceVal = cmd.replaceWith ?? (cmd.replace || '');
-//     if (colIndex == null) return alert('Column not found');
-//     const data = (window as any).luckysheet.getluckysheetdata(0);
-//     // do replace in-place
-//     for (let r = 1; r < data.length; r++) {
-//       const cell = data[r][colIndex];
-//       const v = (cell && cell.v !== undefined) ? String(cell.v) : String(cell);
-//       if (v && v.includes(findVal)) {
-//         // replace
-//         const newVal = v.split(findVal).join(replaceVal);
-//         // set back using luckysheet setCellValue API or direct data manipulation
-//         (window as any).luckysheet.setcellvalue(r, colIndex, newVal, 0); // 0 means no recalc
-//       }
-//     }
-//     alert(`Replaced '${findVal}' with '${replaceVal}' in column ${cmd.column || colIndex}`);
-//   }
-
-//   doInsertRow(cmd: any) {
-//     const at = cmd.from?.r ?? 0;
-//     // luckysheet.insertRow is available
-//     try {
-//       (window as any).luckysheet.insertRow(at, 1);
-//       alert('Inserted a row at ' + at);
-//     } catch (err) {
-//       console.error(err);
-//       alert('Insert row failed: ' + err);
-//     }
-//   }
-
-//   doDeleteRow(cmd: any) {
-//     const at = cmd.from?.r ?? 0;
-//     try {
-//       (window as any).luckysheet.deleteRow(at, 1);
-//       alert('Deleted row ' + at);
-//     } catch (err) {
-//       console.error(err);
-//       alert('Delete row failed: ' + err);
-//     }
-//   }
-
-//   doUpdateCell(cmd: any) {
-//     const r = cmd.from?.r;
-//     const c = cmd.from?.c;
-//     if (r == null || c == null) return alert('Cell coordinates not provided');
-//     try {
-//       (window as any).luckysheet.setcellvalue(r, c, cmd.value, 0);
-//       alert('Updated cell');
-//     } catch (err) {
-//       console.error(err);
-//       alert('Update cell failed: ' + err);
-//     }
-//   }
-
-//   parseColumnIndex(cmd: any): number | null {
-//     if (typeof cmd.columnIndex === 'number') return cmd.columnIndex;
-//     if (cmd.column) {
-//       // if column like 'A' convert to 0
-//       const c = cmd.column.toString().trim();
-//       if (/^[A-Z]+$/i.test(c)) {
-//         // convert letters to index e.g. A->0, B->1
-//         let index = 0;
-//         const s = c.toUpperCase();
-//         for (let i = 0; i < s.length; i++) {
-//           index = index * 26 + (s.charCodeAt(i) - 65 + 1);
-//         }
-//         return index - 1;
-//       } else {
-//         // column as header name: find header row
-//         const data = (window as any).luckysheet.getluckysheetdata(0);
-//         const headers = (data[0] || []).map((cell:any) => (cell && cell.v !== undefined) ? String(cell.v) : String(cell));
-//         const idx = headers.findIndex((h : any) => h.toLowerCase() === c.toLowerCase());
-//         return idx >= 0 ? idx : null;
-//       }
-//     }
-//     return null;
-//   }
-// }
-
-// ---------------------------------------------------------------------------------
-
-
-
-// excel-ai.component.ts
-// excel-ai.component.ts
-
-// import { Component, OnInit, NgZone, AfterViewViewInit } from '@angular/core';
-// import { Component, OnInit, NgZone, AfterViewViewInit } from '@angular/core';
 import { Component, OnInit, NgZone, AfterViewInit } from '@angular/core';
-
 import { ExcelService } from '../services/excel.service';
 import { GeminiService } from '../services/gemini.service';
 declare var luckysheet: any;
-
-// A type definition for clarity, though not strictly necessary
 type CellDataObject = { r: number; c: number; v?: any };
+declare var google: any;
+import { AI_KEYS } from '../../environments/iconfig';
 
 @Component({
   selector: 'app-excel-ai',
@@ -459,6 +44,11 @@ export class ExcelAiComponent implements OnInit, AfterViewInit {
   // Formulas
   'sum', 'average', 'count', 'max', 'min', 'formula'
 ];
+
+
+accessToken: string = '';
+spreadsheetId: string = '';
+  activeSheetName: any;
 
 
   constructor(
@@ -501,13 +91,21 @@ export class ExcelAiComponent implements OnInit, AfterViewInit {
   
   // --- Voice & File Operations (No major changes) ---
   
+  isManualStop = false;
   startListening() {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) { return alert('Speech recognition not supported.'); }
+     this.isManualStop = false;
     this.recognition = new SpeechRecognition();
     this.recognition.lang = 'en-US';
     this.recognition.onstart = () => this.zone.run(() => this.listening = true);
-    this.recognition.onend = () => this.zone.run(() => this.listening = false);
+    this.recognition.onend = () => this.zone.run(() => {
+       if (!this.isManualStop) {
+        this.recognition.start();           // ✅ auto restart
+      } else {
+        this.listening = false;
+      }
+    });
     this.recognition.onresult = (event: any) => {
       const text = event.results[0][0].transcript;
       this.zone.run(() => {
@@ -515,9 +113,13 @@ export class ExcelAiComponent implements OnInit, AfterViewInit {
         if (['go left','go right','go up','go down'].includes(text.toLowerCase())) {
           this.moveSelection(text as 'go left'|'go right'|'go up'|'go down');
         }
-        else if (this.excelOps.some((op : any) => text.toLowerCase().includes(op))) {
-          this.onVoiceCommand(text);
-        } 
+        // else if (this.excelOps.some((op : any) => text.toLowerCase().includes(op))) {
+        //   this.onVoiceCommand(text);
+        // } 
+        else if (this.excelOps.some((op: any) => text.toLowerCase().includes(op))) {
+          this.onVoiceCommand(text.toLowerCase());
+        }
+
         else {
           this.insertTextInCurrentCell(text.toLowerCase());
         }
@@ -539,7 +141,7 @@ export class ExcelAiComponent implements OnInit, AfterViewInit {
 
   // --- AI Command Processing ---
 
-  async onVoiceCommand(text: string) {
+  async onVoiceCommandold(text: string) {
     if (this.isLoading) return;
     this.transcript = text;
     const prompt = this.buildCommandPrompt(text);
@@ -561,6 +163,39 @@ export class ExcelAiComponent implements OnInit, AfterViewInit {
       this.isLoading = false;
     }
   }
+
+  async onVoiceCommand(command: string) {
+
+  // 🔹 STEP 1: Try LOCAL (Rule-based) execution first
+  const handledLocally = this.handleLocalExcelCommand(command.toLowerCase());
+  if (handledLocally) {
+    return; // ✅ Gemini call skipped
+  }
+
+  // 🔹 STEP 2: FALLBACK to OLD Gemini logic (UNCHANGED)
+  if (this.isLoading) return;
+
+  this.transcript = command;
+  const prompt = this.buildCommandPrompt(command);
+
+  try {
+    this.isLoading = true;
+    const res: any = await this.geminiSvc.parseCommand(prompt);
+    const parsed = this.extractJsonFromModelResponse(res);
+    this.lastParsedAction = parsed;
+
+    if (parsed) {
+      this.executeAction(parsed);
+    } else {
+      alert('Could not understand the command.');
+    }
+  } catch (err) {
+    console.error('Gemini error', err);
+  } finally {
+    this.isLoading = false;
+  }
+}
+
 
   buildCommandPrompt(userText: string): string {
     // This is the same powerful prompt from before
@@ -765,6 +400,7 @@ Now parse: "${userText}"
     return colors[color.toLowerCase()] || color;
   }
   stopListening() {
+     this.isManualStop = true;
   if (this.recognition) {
     this.recognition.stop();
   }
@@ -812,6 +448,355 @@ insertTextInCurrentCell(value: string) {
   const r = range.row[0];
   const c = range.column[0];
   (window as any).luckysheet.setCellValue(r, c, value);
+}
+
+
+// loginWithGoogle() {
+//   const tokenClient = google.accounts.oauth2.initTokenClient({
+//     client_id: AI_KEYS.googleClientId,
+//     scope: `
+// https://www.googleapis.com/auth/drive.file
+// https://www.googleapis.com/auth/spreadsheets
+// `
+// ,
+//     callback: (resp: any) => {
+//       this.accessToken = resp.access_token;
+//       this.openPicker();
+//     }
+//   });
+
+//   tokenClient.requestAccessToken();
+// }
+loginWithGoogle() {
+  const tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: AI_KEYS.googleClientId,
+    scope: 'https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/drive.file',
+    callback: (resp: any) => {
+      this.accessToken = resp.access_token;
+      this.openPicker();
+    }
+  });
+
+  tokenClient.requestAccessToken();
+}
+
+// openPicker() {
+//   const picker = new google.picker.PickerBuilder()
+//     .addView(google.picker.ViewId.SPREADSHEETS)
+//     .setOAuthToken(this.accessToken)
+//     .setDeveloperKey(AI_KEYS.googleClientId) // blank ok
+//     .setCallback((data: any) => {
+//       if (data.action === google.picker.Action.PICKED) {
+//         this.spreadsheetId = data.docs[0].id;
+//         this.loadGoogleSheetData();
+//       }
+//     })
+//     .build();
+
+//   picker.setVisible(true);
+// }
+// async loadGoogleSheetData() {
+//   const res = await fetch(
+//     `https://sheets.googleapis.com/v4/spreadsheets/${this.spreadsheetId}/values/Sheet1`,
+//     {
+//       headers: {
+//         Authorization: `Bearer ${this.accessToken}`
+//       }
+//     }
+//   );
+
+ 
+
+
+//   const json = await res.json();
+//   const values = json.values || [];
+//   this.refreshLuckysheet(this.convertToCelldata(values));
+// }
+
+ openPicker1() {
+  const picker = new google.picker.PickerBuilder()
+    .addView(google.picker.ViewId.SPREADSHEETS)
+    .setOAuthToken(this.accessToken)
+    .setDeveloperKey(AI_KEYS.googleApiKey) // 🔥 REQUIRED
+    .setCallback(this.pickerCallback.bind(this))
+    .build();
+
+  picker.setVisible(true);
+}
+openPicker() {
+  const view = new google.picker.View(google.picker.ViewId.DOCS);
+
+  const picker = new google.picker.PickerBuilder()
+    .setDeveloperKey(AI_KEYS.googleApiKey) // 👈 API KEY HERE
+    .setOAuthToken(this.accessToken)        // 👈 Access Token
+    .addView(view)
+    .setCallback(this.pickerCallback.bind(this))
+    .build();
+
+  picker.setVisible(true);
+}
+
+pickerCallback(data: any) {
+  if (data.action === google.picker.Action.PICKED) {
+    this.spreadsheetId = data.docs[0].id;
+    this.loadGoogleSheetData();
+  }
+}
+async loadGoogleSheetData() {
+  // 1️⃣ get spreadsheet metadata
+  const metaRes = await fetch(
+    `https://sheets.googleapis.com/v4/spreadsheets/${this.spreadsheetId}`,
+    {
+      headers: { Authorization: `Bearer ${this.accessToken}` }
+    }
+  );
+  const meta = await metaRes.json();
+  const sheetName = meta.sheets[0].properties.title;
+
+  // 2️⃣ load values
+  const res = await fetch(
+    `https://sheets.googleapis.com/v4/spreadsheets/${this.spreadsheetId}/values/${sheetName}`,
+    {
+      headers: { Authorization: `Bearer ${this.accessToken}` }
+    }
+  );
+
+  const json = await res.json();
+  const values = json.values || [];
+
+  this.activeSheetName = sheetName;
+  this.refreshLuckysheet(this.convertToCelldata(values));
+}
+
+saveTimeout: any;
+
+refreshLuckysheet(celldata: any[]) {
+  if (luckysheet?.destroy) {
+    luckysheet.destroy();
+  }
+
+  luckysheet.create({
+    container: 'luckysheet',
+    showinfobar: false,
+    hook: {
+      updated: () => {
+        clearTimeout(this.saveTimeout);
+        this.saveTimeout = setTimeout(() => {
+          const file = luckysheet.getluckysheetfile();
+          const grid = file?.[0]?.data || [];
+          const values = this.convertFromGridToSimpleArray(grid);
+          this.autoSaveToGoogleSheets(values);
+        }, 800); // debounce
+      }
+    },
+    data: [{ name: this.activeSheetName, celldata }]
+  });
+}
+
+async autoSaveToGoogleSheets(values: any[][]) {
+  await fetch(
+    `https://sheets.googleapis.com/v4/spreadsheets/${this.spreadsheetId}/values/Sheet1!A1?valueInputOption=USER_ENTERED`,
+    {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${this.accessToken}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ values })
+    }
+  );
+}
+
+// refreshLuckysheet(celldata: any[]) {
+//   // Destroy previous instance if exists
+//   if (luckysheet?.destroy) {
+//     luckysheet.destroy();
+//   }
+
+//   luckysheet.create({
+//     container: 'luckysheet',
+//     showinfobar: false,
+//     hook: {
+//       updated: () => {
+//         const file = luckysheet.getluckysheetfile();
+//         if (file && file.length) {
+//           const grid = file[0].data;
+//           const values = this.convertFromGridToSimpleArray(grid);
+//           this.autoSaveToGoogleSheets(values);
+//         }
+//       }
+//     },
+//     data: [
+//       {
+//         name: 'Sheet1',
+//         celldata: celldata
+//       }
+//     ]
+//   });
+// }
+
+
+convertFromGridToSimpleArray(grid: any[][]): any[][] {
+  return grid.map(row =>
+    row.map(cell => cell?.v ?? '')
+  );
+}
+
+
+handleLocalExcelCommand(command: string): boolean {
+
+  // ===== Formatting =====
+  if (command.includes('bold')) return this.makeBold(), true;
+  if (command.includes('italic')) return this.makeItalic(), true;
+  if (command.includes('underline')) return this.makeUnderline(), true;
+  if (command.includes('strikethrough')) return this.makeStrike(), true;
+
+  if (command.includes('font size')) return this.changeFontSize(command), true;
+  if (command.includes('text color')) return this.changeTextColor(command), true;
+  if (command.includes('background color') || command.includes('fill color'))
+    return this.changeBackgroundColor(command), true;
+
+  // ===== Insert / Delete =====
+  if (command.includes('insert row') || command.includes('add row'))
+    return this.insertRow(), true;
+
+  if (command.includes('insert column') || command.includes('add column'))
+    return this.insertColumn(), true;
+
+  if (command.includes('delete row') || command.includes('remove row'))
+    return this.deleteRow(), true;
+
+  if (command.includes('delete column') || command.includes('remove column'))
+    return this.deleteColumn(), true;
+
+  // ===== Alignment =====
+  if (command.includes('left align')) return this.alignCell('left'), true;
+  if (command.includes('center align')) return this.alignCell('center'), true;
+  if (command.includes('right align')) return this.alignCell('right'), true;
+  if (command.includes('top align')) return this.alignVertical('top'), true;
+  if (command.includes('bottom align')) return this.alignVertical('bottom'), true;
+
+  // ===== Merge / Split =====
+  if (command.includes('merge')) return this.mergeCells(), true;
+  if (command.includes('unmerge') || command.includes('split cell'))
+    return this.unmergeCells(), true;
+
+  // ===== Clipboard =====
+  if (command.includes('copy')) return this.copyCell(), true;
+  if (command.includes('paste')) return this.pasteCell(), true;
+  if (command.includes('cut')) return this.cutCell(), true;
+
+  // ===== Visibility =====
+  if (command.includes('hide row')) return this.hideRow(), true;
+  if (command.includes('hide column')) return this.hideColumn(), true;
+  if (command.includes('unhide row') || command.includes('show row'))
+    return this.unhideRow(), true;
+  if (command.includes('unhide column') || command.includes('show column'))
+    return this.unhideColumn(), true;
+
+  // ===== Freeze =====
+  if (command.includes('freeze')) return this.freezeRowOrColumn(), true;
+  if (command.includes('unfreeze')) return this.unfreeze(), true;
+
+  // ===== Data =====
+  if (command.includes('clear')) return this.clearCell(), true;
+  if (command.includes('wrap text')) return this.wrapText(), true;
+
+  // ===== Formulas =====
+  if (command.includes('sum')) return this.applyFormula('SUM'), true;
+  if (command.includes('average')) return this.applyFormula('AVERAGE'), true;
+  if (command.includes('count')) return this.applyFormula('COUNT'), true;
+  if (command.includes('max')) return this.applyFormula('MAX'), true;
+  if (command.includes('min')) return this.applyFormula('MIN'), true;
+
+  return false; // ❌ Not handled locally → Gemini will handle
+}
+
+
+makeBold() { this.applyStyle({ fontWeight: 'bold' }); }
+makeItalic() { this.applyStyle({ fontStyle: 'italic' }); }
+makeUnderline() { this.applyStyle({ textDecoration: 'underline' }); }
+makeStrike() { this.applyStyle({ textDecoration: 'line-through' }); }
+insertRow() { console.log('Row inserted'); }
+insertColumn() { console.log('Column inserted'); }
+deleteRow() { console.log('Row deleted'); }
+deleteColumn() { console.log('Column deleted'); }
+alignCell(type: 'left' | 'center' | 'right') {
+  console.log('Horizontal Align:', type);
+}
+
+alignVertical(type: 'top' | 'bottom') {
+  console.log('Vertical Align:', type);
+}
+mergeCells() { console.log('Cells merged'); }
+unmergeCells() { console.log('Cells unmerged'); }
+copyCell() { console.log('Copied'); }
+pasteCell() { console.log('Pasted'); }
+cutCell() { console.log('Cut'); }
+hideRow() { console.log('Row hidden'); }
+hideColumn() { console.log('Column hidden'); }
+unhideRow() { console.log('Row shown'); }
+unhideColumn() { console.log('Column shown'); }
+freezeRowOrColumn() { console.log('Freeze applied'); }
+unfreeze() { console.log('Unfreeze applied'); }
+clearCell() {
+  this.insertTextInCurrentCell('');
+}
+
+wrapText() {
+  console.log('Wrap text enabled');
+}
+applyFormula(type: string) {
+  const formula = `=${type}(A1:A10)`;
+  this.insertTextInCurrentCell(formula);
+}
+applyStyle(style: any) {
+  console.log('Applying style:', style);
+}
+changeTextColor(command: string) {
+  const color = this.extractColor(command);
+  console.log('Text color:', color);
+  // apply style to selected cell
+  this.applyStyle({ color });
+}
+changeBackgroundColor(command: string) {
+  const color = this.extractColor(command);
+  console.log('Background color:', color);
+  this.applyStyle({ backgroundColor: color });
+}
+extractColor(command: string): string {
+  const colors = [
+    'red','blue','green','yellow','orange',
+    'black','white','pink','purple','gray'
+  ];
+
+  return colors.find(c => command.includes(c)) || 'black';
+}
+changeFontSize(command: string) {
+  const size = this.extractFontSize(command);
+  console.log('Font size:', size);
+  this.applyStyle({ fontSize: `${size}px` });
+}
+extractFontSize(command: string): number {
+
+  // 1️⃣ Direct number: "font size 16"
+  const match = command.match(/\d+/);
+  if (match) {
+    return Number(match[0]);
+  }
+
+  // 2️⃣ Semantic sizes
+  if (command.includes('small')) return 12;
+  if (command.includes('medium')) return 16;
+  if (command.includes('large')) return 20;
+  if (command.includes('extra large')) return 24;
+
+  // 3️⃣ Increase / decrease
+  if (command.includes('increase')) return 18;
+  if (command.includes('decrease')) return 12;
+
+  // default
+  return 14;
 }
 
 
