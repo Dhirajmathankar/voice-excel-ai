@@ -4,11 +4,13 @@ import { HttpClientModule } from '@angular/common/http';
 
 import { AppComponent } from './app.component';
 import { ExcelAiComponent } from './excel-ai/excel-ai.component';
+import { CommandCenterComponent } from './command-center/command-center.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    ExcelAiComponent
+    ExcelAiComponent,
+    CommandCenterComponent
   ],
   imports: [
     BrowserModule,

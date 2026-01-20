@@ -1,0 +1,57 @@
+<div class="modal-overlay" *ngIf="isOpen" (click)="close()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <header class="modal-header">
+      <div class="title-area">
+        <i class="fa-solid fa-wand-magic-sparkles"></i>
+        <h2>Mittra Help Center</h2>
+      </div>
+      <button class="close-icon" (click)="close()">&times;</button>
+    </header>
+
+    <nav class="modal-nav">
+      <button [class.active]="activeTab === 'commands'" (click)="activeTab = 'commands'">
+        <i class="fa-solid fa-microphone"></i> Voice Commands
+      </button>
+      <button [class.active]="activeTab === 'instructions'" (click)="activeTab = 'instructions'">
+        <i class="fa-solid fa-book-open"></i> How to Use
+      </button>
+    </nav>
+
+    <div class="modal-body">
+      <div *ngIf="activeTab === 'commands'" class="tab-content animate-fade">
+        <div class="category-block" *ngFor="let cat of categories">
+          <h3 class="category-title"><i class="fa-solid {{cat.icon}}"></i> {{cat.name}}</h3>
+          <div class="command-grid">
+            <div class="command-card" *ngFor="let item of cat.items">
+              <div class="lang-row"><strong>EN:</strong> {{item.en}}</div>
+              <div class="lang-row"><strong>हि:</strong> {{item.hi}}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="activeTab === 'instructions'" class="tab-content animate-fade">
+        <div class="instruction-card highlight" (click)="runTour()">
+          <div class="info">
+            <h4>Start Interactive Tour</h4>
+            <p>New here? Let us show you around the interface step-by-step.</p>
+          </div>
+          <i class="fa-solid fa-play-circle"></i>
+        </div>
+        
+        <div class="pro-tips">
+          <h4>Pro Tips 💡</h4>
+          <ul>
+            <li>Wait for the <strong>Red Pulse</strong> before speaking.</li>
+            <li>You can say cell names like "A One" or "B Ten".</li>
+            <li>Sync with Google to save your progress permanently.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <footer class="modal-footer">
+      <button class="btn-primary" (click)="close()">Got it!</button>
+    </footer>
+  </div>
+</div>

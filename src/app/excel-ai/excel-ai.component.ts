@@ -1,10 +1,11 @@
-import { Component, OnInit, NgZone, AfterViewInit } from '@angular/core';
+import { Component, OnInit, NgZone, AfterViewInit, ViewChild } from '@angular/core';
 import { ExcelService } from '../services/excel.service';
 import { GeminiService } from '../services/gemini.service';
 declare var luckysheet: any;
 type CellDataObject = { r: number; c: number; v?: any };
 declare var google: any;
 import { AI_KEYS } from '../../environments/iconfig';
+import { CommandCenterComponent } from '../command-center/command-center.component';
 
 @Component({
   selector: 'app-excel-ai',
@@ -799,5 +800,20 @@ extractFontSize(command: string): number {
   return 14;
 }
 
+
+  @ViewChild('commandCenter')
+  commandCenter!: CommandCenterComponent;
+
+  openCommandCenter() {
+    this.commandCenter.open();
+  }
+
+  closeCommandCenter() {
+    this.commandCenter.close();
+  }
+
+  startHelpTour() {
+    this.commandCenter.runTour();
+  }
 
 }

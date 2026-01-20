@@ -40,7 +40,7 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 16px;
+  padding: 2px 9px;
   border-radius: 4px;
   font-size: 14px;
   font-weight: 600;
@@ -123,4 +123,112 @@ li {
 
 .active {
   background: #e0f2ff;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.control-group {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* ===== Voice Button ===== */
+.btn-voice {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding:5px 15px;
+  border-radius: 30px;
+  border: 2px solid #e5e7eb;
+  background: #ffffff;
+  font-weight: 600;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+/* Mic Dot */
+.btn-voice .dot {
+  width: 10px;
+  height: 10px;
+  background: #9ca3af;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+/* Hover */
+.btn-voice:hover:not(:disabled) {
+  border-color: #6366f1;
+  color: #4338ca;
+}
+
+/* ===== Recording State (TOGGLE ON) ===== */
+.btn-voice.recording {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  border-color: transparent;
+  color: white;
+  box-shadow: 0 0 0 6px rgba(239, 68, 68, 0.15);
+}
+
+/* Pulsing Dot */
+.btn-voice.recording .dot {
+  background: white;
+  animation: pulse 1.2s infinite;
+}
+
+/* Disable look */
+.btn-voice:disabled {
+  opacity: 0.85;
+  cursor: not-allowed;
+}
+
+/* ===== Stop Button ===== */
+.btn-stop {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: none;
+  background: #111827;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.btn-stop:hover:not(:disabled) {
+  background: #dc2626;
+  transform: scale(1.05);
+}
+
+.btn-stop:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ===== Animations ===== */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.6);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+  }
 }

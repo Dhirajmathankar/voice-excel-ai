@@ -1,0 +1,324 @@
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.modal-container {
+  background: white;
+  width: 90%;
+  max-width: 700px;
+  max-height: 85vh;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+}
+
+.modal-header {
+  padding: 20px 24px;
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #f1f5f9;
+  .title-area {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    h2 { margin: 0; font-size: 1.25rem; color: #0f172a; }
+    i { color: #4f46e5; font-size: 1.5rem; }
+  }
+}
+
+.modal-nav {
+  display: flex;
+  padding: 10px 24px;
+  background: #f8fafc;
+  gap: 10px;
+  button {
+    background: none; border: none; padding: 10px 16px; cursor: pointer;
+    font-weight: 500; color: #64748b; border-radius: 8px;
+    &.active { background: white; color: #4f46e5; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+  }
+}
+
+.modal-body {
+  padding: 24px;
+  overflow-y: auto;
+  
+  .category-title { font-size: 14px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
+  
+  .command-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .command-card {
+    background: #f8fafc;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    font-size: 13px;
+    .lang-row { margin-bottom: 4px; }
+  }
+}
+
+.instruction-card.highlight {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  color: white;
+  padding: 20px;
+  border-radius: 12px;
+  cursor: pointer;
+  h4 { margin: 0; font-size: 18px; }
+  p { margin: 4px 0 0; opacity: 0.9; font-size: 14px; }
+  i { font-size: 2rem; }
+}
+
+.modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid #f1f5f9;
+  text-align: right;
+  .btn-primary { 
+    background: #0f172a; color: white; border: none; 
+    padding: 10px 24px; border-radius: 8px; cursor: pointer;
+  }
+}
+
+/* ===== Overlay ===== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+
+/* ===== Container ===== */
+.modal-container {
+  width: 880px;
+  max-width: 95%;
+  max-height: 90vh;
+  background: #ffffff;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.25);
+  animation: scaleIn 0.25s ease;
+}
+
+/* ===== Header ===== */
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 24px;
+  border-bottom: 1px solid #e5e7eb;
+  background: linear-gradient(135deg, #4f46e5, #6366f1);
+  color: white;
+}
+
+.title-area {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.title-area h2 {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.close-icon {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-size: 20px;
+  color: white;
+  cursor: pointer;
+}
+
+.close-icon:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+/* ===== Navigation ===== */
+.modal-nav {
+  display: flex;
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.modal-nav button {
+  flex: 1;
+  padding: 14px;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 600;
+  color: #6b7280;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.modal-nav button.active {
+  background: #ffffff;
+  color: #4f46e5;
+  box-shadow: inset 0 -3px 0 #4f46e5;
+}
+
+/* ===== Body ===== */
+.modal-body {
+  padding: 24px;
+  overflow-y: auto;
+  background: #f8fafc;
+}
+
+/* ===== Categories ===== */
+.category-block {
+  margin-bottom: 32px;
+}
+
+.category-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ===== Command Cards ===== */
+.command-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+}
+
+.command-card {
+  background: white;
+  border-radius: 12px;
+  padding: 14px 16px;
+  border: 1px solid #e5e7eb;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.command-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+}
+
+.lang-row {
+  font-size: 13px;
+  line-height: 1.6;
+  color: #374151;
+}
+
+.lang-row strong {
+  color: #111827;
+}
+
+/* ===== Instruction Cards ===== */
+.instruction-card {
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  color: white;
+  border-radius: 14px;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  margin-bottom: 24px;
+  box-shadow: 0 12px 30px rgba(79, 70, 229, 0.35);
+}
+
+.instruction-card:hover {
+  transform: scale(1.02);
+}
+
+.instruction-card h4 {
+  font-size: 16px;
+  margin-bottom: 6px;
+}
+
+.instruction-card p {
+  font-size: 13px;
+  opacity: 0.9;
+}
+
+.instruction-card i {
+  font-size: 36px;
+}
+
+/* ===== Pro Tips ===== */
+.pro-tips {
+  background: white;
+  border-radius: 14px;
+  padding: 18px;
+  border: 1px solid #e5e7eb;
+}
+
+.pro-tips h4 {
+  margin-bottom: 10px;
+  font-size: 15px;
+}
+
+.pro-tips ul {
+  padding-left: 18px;
+  font-size: 13px;
+  color: #374151;
+}
+
+/* ===== Footer ===== */
+.modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: flex-end;
+  background: #ffffff;
+}
+
+.btn-primary {
+  background: #4f46e5;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background: #4338ca;
+}
+
+/* ===== Animations ===== */
+.animate-fade {
+  animation: fadeIn 0.25s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
