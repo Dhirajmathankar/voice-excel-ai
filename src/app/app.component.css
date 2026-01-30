@@ -97,3 +97,69 @@ body{margin:0;background:linear-gradient(180deg,#0a0f1d, #0e1430);color:var(--te
 .btn.danger:hover{background:rgba(255,107,107,.1)}
 .dot{width:8px;height:8px;border-radius:50%;background:#d0d6f9}
 .dot.on{background:var(--accent-2)}
+
+
+
+/* Floating Button */
+.chat-toggle-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  height: 60px;
+  width: 60px;
+  border-radius: 50%;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  z-index: 999999;
+  background: transparent;
+}
+
+.chat-toggle-btn img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* Chatbot Wrapper */
+.chatbot-wrapper {
+  position: fixed;
+  bottom: 90px;
+  right: 20px;
+  width: 380px;
+  max-height: 70vh;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Tablet */
+@media (max-width: 768px) {
+  .chatbot-wrapper {
+    width: 90%;
+    right: 5%;
+    bottom: 90px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .chatbot-wrapper {
+    width: 100%;
+    height: 100%;
+    max-height: 100%;
+    right: 0;
+    bottom: 0;
+    border-radius: 0;
+  }
+
+  .chat-toggle-btn {
+    bottom: 15px;
+    right: 15px;
+  }
+}

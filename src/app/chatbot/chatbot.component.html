@@ -1,0 +1,25 @@
+
+<div class="chat-container">
+  <div class="chat-header">
+    🤖 Mittra Chatbot
+  </div>
+
+  <div class="chat-body">
+    <div *ngFor="let msg of messages" 
+         [ngClass]="msg.sender === 'BOT' ? 'bot-msg' : 'user-msg'">
+      {{ msg.text }}
+    </div>
+  </div>
+
+  <div class="chat-footer">
+    <input style="    border-radius: 5px;
+    box-shadow: 0px 0px 3px 1px #1f71f1f2;
+    border: 1px solid #1f71f1f2; "
+      type="text"
+      [(ngModel)]="userInput"
+      (keyup.enter)="send()"
+      placeholder="Type your message..."
+    />
+    <div (click)="send()" style="    border-radius: 50px;border: 1px solid white; "> <img src="assets/img/send.png" style="height: 29px;" alt="assets/img/send.png"> </div>
+  </div>
+</div>

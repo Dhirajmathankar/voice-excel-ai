@@ -1,130 +1,15 @@
+<!-- Floating Toggle Button -->
+<button class="chat-toggle-btn" (click)="toggleChatbot()">
+  <img
+    src="https://www.shutterstock.com/image-vector/happy-robot-3d-ai-character-600nw-2464455965.jpg"
+    alt="Chatbot"
+  />
+</button>
 
-
-
+<!-- Excel Component -->
 <app-excel-ai></app-excel-ai>
 
-
-
-
-
-
-
-
-
-
-
-
-<!-- <div class="page">
-  <header class="topbar">
-    <div class="brand">
-      <div class="logo">
-        <span class="dot"></span>
-      </div>
-      <div class="titles">
-        <h1>AI Voice Agent</h1>
-        <p class="subtitle">Real-time speech to text</p>
-      </div>
-    </div>
-
-    <div class="status">
-      <span class="chip" [class.listening]="isListening" [class.idle]="!isListening">
-        <span class="pulse" *ngIf="isListening"></span>
-        {{ isListening ? 'Listening' : 'Idle' }}
-      </span>
-      <span class="divider"></span>
-      <span class="timer" *ngIf="lastSpeechAgoSec !== null">
-        Last speech: {{ lastSpeechAgoSec }}s ago
-      </span>
-      <button class="btn ghost" (click)="toggleListening()"
-              [attr.aria-label]="isListening ? 'Stop listening' : 'Start listening'">
-        {{ isListening ? 'Stop' : 'Start' }}
-      </button>
-    </div>
-  </header>
-  <main class="content">
-    <section class="left">
-      <div class="panel">
-        <div class="panel-header">
-          <h2>Live Transcript</h2>
-          <div class="tools">
-            <button class="btn ghost" (click)="copyTranscript()" [disabled]="!hasAnyText()">Copy</button>
-            <button class="btn ghost" (click)="downloadTranscript()" [disabled]="!hasAnyText()">Download</button>
-            <button class="btn danger" (click)="clearTranscript()" [disabled]="!hasAnyText()">Clear</button>
-          </div>
-        </div>
-        <div class="live-line" *ngIf="liveLine; else idleHint">
-          <div class="line">{{ liveLine }}</div>
-        </div>
-        <ng-template #idleHint>
-          <div class="empty">
-            <div class="mic-anim" [class.active]="isListening">
-              <div class="ring r1"></div>
-              <div class="ring r2"></div>
-              <div class="ring r3"></div>
-              <svg viewBox="0 0 24 24" class="mic">
-                <path d="M12 14a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3z"></path>
-                <path d="M19 11a7 7 0 0 1-14 0"></path>
-                <path d="M12 19v3"></path>
-              </svg>
-            </div>
-            <h3>{{ isListening ? 'Listening…' : 'Click Start to begin' }}</h3>
-            <p class="muted">Speak naturally. Your words will appear here in real time.</p>
-          </div>
-        </ng-template>
-        <div class="transcript" *ngIf="finalTranscript">
-          <h3>Session Transcript</h3>
-          <pre>{{ finalTranscript.trim() }}</pre>
-        </div>
-      </div>
-    </section>
-    <aside class="right">
-      <div class="card">
-        <h3>Session</h3>
-        <div class="kv">
-          <span>Language</span><strong>{{ language }}</strong>
-        </div>
-        <div class="kv">
-          <span>Interim Results</span><strong>Enabled</strong>
-        </div>
-        <div class="kv">
-          <span>Continuous</span><strong>On</strong>
-        </div>
-        <div class="kv">
-          <span>Silence Auto-restart</span><strong>Yes</strong>
-        </div>
-      </div>
-
-      <div class="card tips">
-      
-  <div class="card response">
-  <h3>Gemini Response</h3>
-
-  <div *ngIf="aiBlocks?.length; else waiting">
-    <div *ngFor="let block of aiBlocks">
-      <p *ngIf="block.type === 'text'" class="resp-text">
-        {{ block.content }}
-      </p>
-      <pre *ngIf="block.type === 'code'" class="resp-code">
-<code>{{ block.content }}</code>
-      </pre>
-      <p *ngIf="block.type === 'other'" class="resp-other">
-        {{ block.content }}
-      </p>
-    </div>
-  </div>
-
-  <ng-template #waiting>
-    <div class="resp-wait">Waiting for your query…</div>
-  </ng-template>
+<!-- Chatbot Container -->
+<div class="chatbot-wrapper" *ngIf="isChatbotOpen">
+  <app-chatbot></app-chatbot>
 </div>
-
-  </div>
-    </aside>
-  </main>
-  <footer class="foot">
-    <button class="btn primary" (click)="toggleListening()">
-      <span class="dot" [class.on]="isListening"></span>
-      {{ isListening ? 'Stop Listening' : 'Start Listening' }}
-    </button>
-  </footer>
-</div> -->
