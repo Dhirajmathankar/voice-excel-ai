@@ -93,44 +93,113 @@ spreadsheetId: string = '';
   // --- Voice & File Operations (No major changes) ---
   
   isManualStop = false;
-  startListening() {
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) { return alert('Speech recognition not supported.'); }
-     this.isManualStop = false;
-    this.recognition = new SpeechRecognition();
-    this.recognition.lang = 'en-US';
-    this.recognition.onstart = () => this.zone.run(() => this.listening = true);
-    this.recognition.onend = () => this.zone.run(() => {
-       if (!this.isManualStop) {
-        this.recognition.start();           // ✅ auto restart
-      } else {
-        this.listening = false;
+  // startListening() {
+  //   const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+  //   if (!SpeechRecognition) { return alert('Speech recognition not supported.'); }
+  //    this.isManualStop = false;
+  //   this.recognition = new SpeechRecognition();
+  //   this.recognition.lang = 'en-US';
+  //   this.recognition.onstart = () => this.zone.run(() => this.listening = true);
+  //   this.recognition.onend = () => this.zone.run(() => {
+  //      if (!this.isManualStop) {
+  //       this.recognition.start();         
+  //     } else {
+  //       this.listening = false;
+  //     }
+  //   });
+  //   this.recognition.onresult = (event: any) => {
+  //     const text = event.results[0][0].transcript;
+  //     this.zone.run(() => {
+  //       this.transcript = text;
+  //       if (['go left','go right','go up','go down'].includes(text.toLowerCase())) {
+  //         this.moveSelection(text as 'go left'|'go right'|'go up'|'go down');
+  //       }
+  //       // else if (this.excelOps.some((op : any) => text.toLowerCase().includes(op))) {
+  //       //   this.onVoiceCommand(text);
+  //       // } 
+  //       else if (this.excelOps.some((op: any) => text.toLowerCase().includes(op))) {
+  //         this.onVoiceCommand(text.toLowerCase());
+  //       }
+
+  //       else {
+  //         this.insertTextInCurrentCell(text.toLowerCase());
+  //       }
+  //       //  else {
+  //       //               this.onVoiceCommand(text);
+  //       //         }
+  //             });
+  //   };
+  //   this.recognition.start();
+  // }
+
+// Ek variable class level par rakhein jo pura text hold karega
+fullTranscript = ''; 
+
+startListening() {
+  const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+  if (!SpeechRecognition) { return alert('Speech recognition not supported.'); }
+  
+  this.isManualStop = false;
+  this.recognition = new SpeechRecognition();
+  this.recognition.lang = 'en-US';
+  
+  // 1. Continuous mode: Ye pause ke baad bhi sunta rahega
+  this.recognition.continuous = true; 
+  this.recognition.interimResults = false;
+
+  this.recognition.onstart = () => this.zone.run(() => {
+    this.listening = true;
+    // Agar aap naye sire se shuru karna chahte hain toh isse khali karein, 
+    // warna purana text rahega.
+    // this.fullTranscript = ''; 
+  });
+
+  this.recognition.onend = () => this.zone.run(() => {
+    if (!this.isManualStop) {
+      this.recognition.start(); // Auto-restart if browser cuts off
+    } else {
+      this.listening = false;
+    }
+  });
+
+  this.recognition.onresult = (event: any) => {
+    // 2. Sirf naya wala result uthayenge jo abhi bola gaya hai
+    const lastResultIndex = event.results.length - 1;
+    const newText = event.results[lastResultIndex][0].transcript.trim();
+
+    this.zone.run(() => {
+      // 3. Append Logic: Purane text mein naya text jodna
+      this.fullTranscript += (this.fullTranscript ? ' ' : '') + newText;
+      this.transcript = this.fullTranscript;
+
+      // Excel Operations Check
+      const lowerText = newText.toLowerCase();
+      
+      if (['go left','go right','go up','go down'].includes(lowerText)) {
+        this.moveSelection(lowerText as any);
+      } 
+      else if (this.excelOps.some((op: any) => lowerText.includes(op))) {
+        this.onVoiceCommand(lowerText);
+      } 
+      else {
+        // Cell mein bhi pura joda hua text dalne ke liye:
+        this.insertTextInCurrentCell(this.fullTranscript);
       }
     });
-    this.recognition.onresult = (event: any) => {
-      const text = event.results[0][0].transcript;
-      this.zone.run(() => {
-        this.transcript = text;
-        if (['go left','go right','go up','go down'].includes(text.toLowerCase())) {
-          this.moveSelection(text as 'go left'|'go right'|'go up'|'go down');
-        }
-        // else if (this.excelOps.some((op : any) => text.toLowerCase().includes(op))) {
-        //   this.onVoiceCommand(text);
-        // } 
-        else if (this.excelOps.some((op: any) => text.toLowerCase().includes(op))) {
-          this.onVoiceCommand(text.toLowerCase());
-        }
+  };
 
-        else {
-          this.insertTextInCurrentCell(text.toLowerCase());
-        }
-        //  else {
-        //               this.onVoiceCommand(text);
-        //         }
-              });
-    };
-    this.recognition.start();
+  this.recognition.start();
+}
+
+// Stop function mein fullTranscript ko clear karna na bhoolein agar naya start chahiye
+stopListening() {
+  this.isManualStop = true;
+  if (this.recognition) {
+    this.recognition.stop();
   }
+  this.listening = false;
+  this.fullTranscript = ''; // Reset for next time
+}
 
   async onUploadFile(ev: any) {
     const file: File = ev.target.files[0];
@@ -400,7 +469,7 @@ Now parse: "${userText}"
     const colors :any = { "red": "#ff0000", "green": "#00ff00", "blue": "#0000ff", "yellow": "#ffff00", "lightgray": "#d3d3d3" };
     return colors[color.toLowerCase()] || color;
   }
-  stopListening() {
+  stopListening1() {
      this.isManualStop = true;
   if (this.recognition) {
     this.recognition.stop();
